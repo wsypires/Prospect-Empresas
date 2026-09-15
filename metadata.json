@@ -1,0 +1,6 @@
+{
+  "name": "Encontre Empresas",
+  "description": "Busca e extração de contatos comerciais via Google Places API com localização por palavra-chave, cidade e estado, identificação de WhatsApp, CNPJ e exportação.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

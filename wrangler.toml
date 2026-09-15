@@ -1,0 +1,16 @@
+# Cloudflare Workers Configuration
+name = "encontre-empresas"
+main = "worker.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[vars]
+APP_NAME = "Encontre Empresas"
+
+# Secrets required in Cloudflare:
+# GOOGLE_MAPS_API_KEY (configure using: npx wrangler secret put GOOGLE_MAPS_API_KEY)

@@ -1,46 +1,118 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   PALETA DE COR PADRÃO ÚNICA: SOTAQUE & CONEXÃO
+   - Fundo Canvas Neutro: #f9f9fb
+   - Superfície Elevada (Cards): #ffffff e #f3f3f5
+   - Primário Vibrante (Destaques & Ação): #ffb800 (hover: #f5a623, dark: #7c5800)
+   - Secundário / Carvão Profundo: #1a1a1a / #1a1c1d
+   - Tipografia Principal: #1a1c1d
+   - Texto Muted / Secundário: #6e6e77 / #514532
+   - Bordas Sutis & Anéis de Foco Ambar: rgba(255, 184, 0, 0.35)
+   ========================================================================== */
+
 :root {
-  /* Cores Primárias de Marca */
-  --primary-purple: #5c59e8;        /* Roxo real vibrante da sidebar e botões */
-  --primary-purple-dark: #3a34a5;   /* Fundo do card Success Premium */
-  --primary-purple-light: #ecebfa;  /* Fundo suave de elementos ativos e pílulas */
+  --primary-accent: #ffb800;
+  --primary-accent-hover: #f5a623;
+  --primary-accent-dark: #7c5800;
+  --primary-accent-light: #fff7db;
+  --primary-accent-container: #ffdea8;
+  --primary-accent-border: rgba(255, 184, 0, 0.35);
+  --primary-accent-glow: rgba(245, 166, 35, 0.22);
   
-  /* Cores de Superfície & Fundo */
-  --bg-app: #e2e8f5;                /* Fundo global suave azulado/acinzentado */
-  --bg-card: #ffffff;               /* Fundo branco puro dos cards */
-  --bg-input: #f3f5fa;              /* Fundo de campos de texto e busca */
+  --charcoal: #1a1a1a;
+  --charcoal-hover: #2f3132;
+  --charcoal-light: #262626;
+
+  --bg-app: #f9f9fb;
+  --bg-card: #ffffff;
+  --bg-card-secondary: #f3f3f5;
+  --bg-header: rgba(255, 255, 255, 0.96);
+  --bg-input: #ffffff;
+  --bg-input-hover: #f3f3f5;
   
-  /* Cores dos Cards de Curso / Trilha */
-  --card-course-blue: #edf3ff;      /* Fundo suave do curso de sites */
-  --card-course-pink: #fdf0f5;      /* Fundo suave do curso de apps */
-  --card-course-orange: #fef4ea;    /* Fundo suave do curso de animação */
+  --text-primary: #1a1c1d;
+  --text-secondary: #6e6e77;
+  --text-muted: #9e9ea7;
+  --text-on-accent: #1a1a1a;
   
-  /* Cores de Status & Ações */
-  --status-completed: #10b981;      /* Verde esmeralda (Concluído) */
-  --status-in-progress: #3b82f6;    /* Azul suave (Em andamento) */
-  --badge-count-bg: rgba(255, 255, 255, 0.2); /* Contador da sidebar */
+  --border-card: #e2e2e4;
+  --border-field: #e2e2e4;
+  --border-divider: #edeef0;
   
-  /* Tipografia & Texto */
-  --text-primary: #1e1e2f;          /* Títulos e textos em destaque */
-  --text-secondary: #6e7191;        /* Rótulos, datas e subtítulos */
-  --text-muted: #a0a3bd;            /* Placeholders e referências discretas */
-  --text-on-primary: #ffffff;       /* Texto em fundos roxos escuros */
-  
-  /* Sombras & Bordas */
-  --shadow-main: 0 20px 40px -15px rgba(92, 89, 232, 0.15);
-  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.03);
-  --border-radius-xl: 24px;
-  --border-radius-lg: 16px;
-  --border-radius-pill: 9999px;
+  --shadow-main: 0 20px 40px -12px rgba(245, 166, 35, 0.14);
+  --shadow-card: 0 10px 30px -10px rgba(26, 26, 26, 0.06), 0 4px 6px -2px rgba(26, 26, 26, 0.02);
+  --shadow-floating: 0 20px 40px -12px rgba(245, 166, 35, 0.18), 0 8px 16px -4px rgba(26, 26, 26, 0.04);
 }
 
 body {
-  background-color: var(--bg-app);
-  color: var(--text-primary);
+  background-color: #f9f9fb;
+  color: #1a1c1d;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+/* Classes utilitárias do tema padrão */
+.theme-app-bg {
+  background-color: #f9f9fb;
+}
+
+.theme-card-bg {
+  background-color: #ffffff;
+}
+
+.theme-text-primary {
+  color: #1a1c1d;
+}
+
+.theme-text-secondary {
+  color: #6e6e77;
+}
+
+/* Mapeamento de estilos para a paleta única padrão "Sotaque & Conexão" */
+.bg-\[\#5c59e8\],
+.bg-\[\#5c59e8\]\/90 {
+  background-color: #ffb800 !important;
+  color: #1a1a1a !important;
+}
+
+.hover\:bg-\[\#4f4cd9\]:hover,
+.hover\:bg-\[\#4d4ac7\]:hover {
+  background-color: #f5a623 !important;
+  color: #1a1a1a !important;
+}
+
+.text-\[\#5c59e8\] {
+  color: #7c5800 !important;
+}
+
+.bg-\[\#ecebfa\] {
+  background-color: #fff7db !important;
+  color: #7c5800 !important;
+}
+
+.border-\[\#5c59e8\],
+.border-\[\#5c59e8\]\/20,
+.border-\[\#5c59e8\]\/25,
+.border-\[\#5c59e8\]\/30 {
+  border-color: rgba(255, 184, 0, 0.45) !important;
+}
+
+.from-\[\#5c59e8\] {
+  --tw-gradient-from: #ffb800 var(--tw-gradient-from-position) !important;
+}
+
+.to-\[\#3a34a5\] {
+  --tw-gradient-to: #7c5800 var(--tw-gradient-to-position) !important;
+}
+
+.shadow-\[\#5c59e8\]\/25 {
+  --tw-shadow-color: rgba(255, 184, 0, 0.25) !important;
+}
+
+/* ==========================================================================
+   EFEITOS VISUAIS, BORDAS E ELEVAÇÕES
+   ========================================================================== */
 
 @keyframes floatMascot {
   0%, 100% {
@@ -61,5 +133,103 @@ body {
 }
 .hover-elevate:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 28px -10px rgba(92, 89, 232, 0.12);
+  box-shadow: 0 16px 32px -8px rgba(245, 166, 35, 0.18), 0 4px 10px rgba(26, 26, 26, 0.04);
+}
+
+/* Efeitos Visuais de Bordas com toque quente */
+.border-glow-card {
+  position: relative;
+  border: 1px solid #e2e2e4;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px -10px rgba(26, 26, 26, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+}
+
+.border-glow-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ffb800, transparent);
+  pointer-events: none;
+  opacity: 0.6;
+  transition: opacity 0.3s ease, left 0.3s ease, right 0.3s ease;
+  border-radius: 9999px;
+}
+
+.border-glow-card:hover {
+  border-color: rgba(255, 184, 0, 0.5);
+  box-shadow: 0 16px 36px -10px rgba(245, 166, 35, 0.2), 0 0 0 1px rgba(255, 184, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.border-glow-card:hover::before {
+  opacity: 1;
+  left: 3%;
+  right: 3%;
+}
+
+/* Efeito visual nas bordas dos campos de formulário */
+.border-field {
+  border: 1px solid #e2e2e4;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02), 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.border-field:hover {
+  border-color: rgba(255, 184, 0, 0.6);
+  box-shadow: 0 0 0 2px rgba(255, 184, 0, 0.18), inset 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+.border-field:focus,
+.border-field:focus-within {
+  border-color: #ffb800;
+  outline: none;
+  box-shadow: 0 0 0 3.5px rgba(255, 184, 0, 0.28), inset 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+/* Efeito visual nas bordas dos cards de métricas */
+.border-metric-card {
+  position: relative;
+  border: 1px solid #e2e2e4;
+  box-shadow: 0 4px 14px rgba(26, 26, 26, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.border-metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ffb800, transparent);
+  pointer-events: none;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+.border-metric-card:hover {
+  border-color: rgba(255, 184, 0, 0.45);
+  box-shadow: 0 12px 24px -6px rgba(245, 166, 35, 0.18), inset 0 1px 0 rgba(255, 255, 255, 1);
+  transform: translateY(-2px);
+}
+.border-metric-card:hover::before {
+  opacity: 1;
+  left: 5%;
+  right: 5%;
+}
+
+/* Efeito visual nas bordas dos modais */
+.border-modal {
+  border: 1px solid #e2e2e4;
+  box-shadow: 0 32px 64px -16px rgba(26, 26, 26, 0.2), 0 0 0 1px rgba(255, 184, 0, 0.3);
+}
+
+/* Botão com efeito de borda e brilho sutil */
+.border-btn-glow {
+  position: relative;
+  box-shadow: 0 2px 10px rgba(245, 166, 35, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.border-btn-glow:hover {
+  box-shadow: 0 6px 20px rgba(245, 166, 35, 0.35), 0 0 0 2px rgba(255, 184, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transform: translateY(-1px);
 }

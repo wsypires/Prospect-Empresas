@@ -167,21 +167,21 @@ export const WhatsAppTemplateModal: React.FC<WhatsAppTemplateModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-100 flex flex-col"
+        className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto border-modal flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur-md z-10">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur-md z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shadow-xs">
+            <div className="w-9 h-9 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shadow-xs">
               <MessageCircle className="w-5 h-5 fill-emerald-600 text-emerald-600" />
             </div>
             <div>
-              <h2 className="text-base font-extrabold text-slate-900">
-                Configurar Mensagem do WhatsApp
+              <h2 className="text-base font-bold text-slate-900">
+                Modelos de Mensagem WhatsApp
               </h2>
               <p className="text-xs text-slate-500 font-medium">
-                Gerencie seus modelos e envie mensagens automáticas personalizadas
+                Personalização de texto para envio direto
               </p>
             </div>
           </div>
@@ -189,7 +189,7 @@ export const WhatsAppTemplateModal: React.FC<WhatsAppTemplateModalProps> = ({
             type="button"
             onClick={onClose}
             className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-            title="Fechar modal"
+            title="Fechar"
           >
             <X className="w-5 h-5" />
           </button>
@@ -210,7 +210,7 @@ export const WhatsAppTemplateModal: React.FC<WhatsAppTemplateModalProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                Variáveis dinâmicas disponíveis (clique para inserir)
+                Variáveis Dinâmicas
               </label>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -232,17 +232,16 @@ export const WhatsAppTemplateModal: React.FC<WhatsAppTemplateModalProps> = ({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-700">
-                Texto do Modelo Atual:
+                Texto da Mensagem:
               </label>
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setIsAddingNew(true)}
                   className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-xl transition-colors cursor-pointer border border-emerald-200/60"
-                  title="Salvar o texto atual como um novo modelo na lista"
                 >
                   <BookmarkPlus className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Salvar como Novo Modelo</span>
+                  <span>Salvar como Novo</span>
                 </button>
                 <span className="text-[11px] font-mono text-slate-400">
                   {template.length} caracteres
@@ -524,21 +523,9 @@ export const WhatsAppTemplateModal: React.FC<WhatsAppTemplateModalProps> = ({
               type="button"
               onClick={handleResetToDefault}
               className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-200/70 rounded-xl transition-colors cursor-pointer"
-              title="Restaurar mensagem padrão"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Restaurar Mensagem Padrão</span>
-              <span className="sm:hidden">Padrão</span>
-            </button>
-            <button
-              type="button"
-              onClick={handleRestoreAllTemplates}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-200/70 rounded-xl transition-colors cursor-pointer"
-              title="Restaurar todos os modelos originais na lista"
-            >
-              <span className="text-[11px] font-medium text-slate-500 hover:text-slate-700 underline">
-                Restaurar Modelos Originais
-              </span>
+              <span>Restaurar Padrão</span>
             </button>
           </div>
 
@@ -562,12 +549,12 @@ export const WhatsAppTemplateModal: React.FC<WhatsAppTemplateModalProps> = ({
               {savedFeedback ? (
                 <>
                   <Check className="w-4 h-4" />
-                  <span>Configuração Salva!</span>
+                  <span>Salvo</span>
                 </>
               ) : (
                 <>
                   <Send className="w-3.5 h-3.5 fill-white" />
-                  <span>Salvar Formato</span>
+                  <span>Salvar</span>
                 </>
               )}
             </button>

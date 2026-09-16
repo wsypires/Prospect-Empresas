@@ -171,39 +171,36 @@ export const SearchForm: React.FC<SearchFormProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover-elevate transition-all">
-      <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+    <div className="bg-white rounded-3xl p-5 sm:p-6 border-glow-card transition-all">
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#edeef0]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-[#ecebfa] text-[#5c59e8] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl bg-[#fff7db] border border-[#ffb800]/40 text-[#7c5800] flex items-center justify-center shrink-0 shadow-2xs">
             <Search className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-[#1e1e2f] leading-tight">
-              Buscar Empresas no Google Places
+            <h3 className="text-sm font-bold text-[#1a1c1d] leading-tight">
+              Buscar Empresas
             </h3>
-            <p className="text-[11px] text-[#6e7191]">
-              Menus auto-preenchidos e dados em tempo real
+            <p className="text-[11px] text-[#6e6e77]">
+              Pesquisa em tempo real via Google Places
             </p>
           </div>
         </div>
-        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#ecebfa] text-[#5c59e8]">
-          Filtro Inteligente
-        </span>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Main 4 inputs: Palavra-chave, País, Estado, Cidade */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-3.5">
           {/* Palavra chave (Keyword) */}
-          <div className="lg:col-span-4">
+          <div className="sm:col-span-2 lg:col-span-4">
             <label
               htmlFor="input-keyword"
-              className="block text-xs font-bold text-[#1e1e2f] uppercase tracking-wider mb-1.5"
+              className="block text-xs font-bold text-[#1a1c1d] uppercase tracking-wider mb-1.5"
             >
               Palavra-chave / Nicho <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#a0a3bd]">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#9e9ea7]">
                 <Search className="w-4 h-4" />
               </div>
               <input
@@ -211,31 +208,31 @@ export const SearchForm: React.FC<SearchFormProps> = ({
                 type="text"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                placeholder="Ex: Farmácia, Dentista, Academia..."
+                placeholder="Ex: Farmácia, Dentista, Restaurante..."
                 required
                 autoFocus
-                className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-[#f3f5fa] border border-slate-200/80 rounded-2xl text-[#1e1e2f] placeholder-[#a0a3bd] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#5c59e8]/20 focus:border-[#5c59e8] transition-colors"
+                className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-white border-field rounded-2xl text-[#1a1c1d] placeholder-[#9e9ea7] transition-colors"
               />
             </div>
           </div>
 
-          {/* Menu de seleção: País (Country) - Auto Preenchido */}
+          {/* Menu de seleção: País (Country) */}
           <div className="lg:col-span-2">
             <label
               htmlFor="select-country"
-              className="block text-xs font-bold text-[#1e1e2f] uppercase tracking-wider mb-1.5"
+              className="block text-xs font-bold text-[#1a1c1d] uppercase tracking-wider mb-1.5"
             >
-              País <span className="text-[#5c59e8] text-[10px] font-semibold lowercase">(auto)</span>
+              País
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#a0a3bd]">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#9e9ea7]">
                 <Globe className="w-4 h-4" />
               </div>
               <select
                 id="select-country"
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
-                className="w-full pl-10 pr-8 py-2.5 text-xs bg-[#f3f5fa] border border-slate-200/80 rounded-2xl text-[#1e1e2f] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#5c59e8]/20 focus:border-[#5c59e8] transition-colors cursor-pointer appearance-none"
+                className="w-full pl-10 pr-8 py-2.5 text-xs bg-white border-field rounded-2xl text-[#1a1c1d] transition-colors cursor-pointer appearance-none"
               >
                 {COUNTRIES_LIST.map((c) => (
                   <option key={c} value={c}>
@@ -243,41 +240,41 @@ export const SearchForm: React.FC<SearchFormProps> = ({
                   </option>
                 ))}
               </select>
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-[#a0a3bd] text-xs">
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-[#9e9ea7] text-xs">
                 ▼
               </div>
             </div>
           </div>
 
-          {/* Menu de seleção: Estado (UF) - Auto Preenchido */}
+          {/* Menu de seleção: Estado (UF) */}
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-1.5">
               <label
                 htmlFor="select-state"
-                className="block text-xs font-bold text-[#1e1e2f] uppercase tracking-wider"
+                className="block text-xs font-bold text-[#1a1c1d] uppercase tracking-wider"
               >
-                Estado (UF) <span className="text-[#5c59e8] text-[10px] font-semibold lowercase">(auto)</span>
+                Estado (UF)
               </label>
               <button
                 type="button"
                 onClick={handleAutoDetectLocation}
                 disabled={isDetectingLocation}
                 title="Detectar minha localização"
-                className="text-[10px] text-[#5c59e8] hover:text-[#4f4cd9] font-semibold flex items-center gap-0.5 cursor-pointer disabled:opacity-50"
+                className="text-[10px] text-[#7c5800] hover:text-[#ffb800] font-semibold flex items-center gap-0.5 cursor-pointer disabled:opacity-50"
               >
                 <Crosshair className={`w-3 h-3 ${isDetectingLocation ? 'animate-spin' : ''}`} />
                 <span>Meu local</span>
               </button>
             </div>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#a0a3bd]">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#9e9ea7]">
                 <Building2 className="w-4 h-4" />
               </div>
               <select
                 id="select-state"
                 value={state}
                 onChange={(e) => setState(e.target.value)}
-                className="w-full pl-10 pr-8 py-2.5 text-xs bg-[#f3f5fa] border border-slate-200/80 rounded-2xl text-[#1e1e2f] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#5c59e8]/20 focus:border-[#5c59e8] transition-colors cursor-pointer appearance-none"
+                className="w-full pl-10 pr-8 py-2.5 text-xs bg-white border-field rounded-2xl text-[#1a1c1d] transition-colors cursor-pointer appearance-none"
               >
                 {statesList.map((s) => (
                   <option key={s.uf} value={s.uf}>
@@ -285,39 +282,36 @@ export const SearchForm: React.FC<SearchFormProps> = ({
                   </option>
                 ))}
               </select>
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-[#a0a3bd] text-xs">
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-[#9e9ea7] text-xs">
                 ▼
               </div>
             </div>
           </div>
 
-          {/* Menu de seleção: Cidade - Auto Preenchido via IBGE */}
-          <div className="lg:col-span-4">
+          {/* Menu de seleção: Cidade */}
+          <div className="sm:col-span-2 lg:col-span-4">
             <div className="flex items-center justify-between mb-1.5">
               <label
                 htmlFor="select-city"
-                className="block text-xs font-bold text-[#1e1e2f] uppercase tracking-wider"
+                className="block text-xs font-bold text-[#1a1c1d] uppercase tracking-wider"
               >
-                Cidade <span className="text-rose-500">*</span>{' '}
-                <span className="text-[#5c59e8] text-[10px] font-semibold lowercase">
-                  ({citiesList.length > 0 ? `${citiesList.length} IBGE` : 'auto'})
-                </span>
+                Cidade <span className="text-rose-500">*</span>
               </label>
               {citiesList.length > 20 && (
                 <input
                   type="text"
-                  placeholder="Filtrar cidade..."
+                  placeholder="Filtrar município..."
                   value={citySearchFilter}
                   onChange={(e) => setCitySearchFilter(e.target.value)}
-                  className="text-[10px] px-2 py-0.5 border border-slate-200 rounded-lg bg-[#f3f5fa] text-[#1e1e2f] placeholder-[#a0a3bd] focus:bg-white focus:outline-hidden"
+                  className="text-[10px] px-2 py-0.5 border border-[#e2e2e4] rounded-lg bg-[#f3f3f5] text-[#1a1c1d] placeholder-[#9e9ea7] focus:bg-white focus:outline-hidden"
                 />
               )}
             </div>
 
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#a0a3bd]">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#9e9ea7]">
                 {isLoadingCities ? (
-                  <Loader2 className="w-4 h-4 animate-spin text-[#5c59e8]" />
+                  <Loader2 className="w-4 h-4 animate-spin text-[#ffb800]" />
                 ) : (
                   <MapPin className="w-4 h-4" />
                 )}
@@ -327,11 +321,10 @@ export const SearchForm: React.FC<SearchFormProps> = ({
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 required
-                className="w-full pl-10 pr-8 py-2.5 text-xs bg-[#f3f5fa] border border-slate-200/80 rounded-2xl text-[#1e1e2f] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#5c59e8]/20 focus:border-[#5c59e8] transition-colors cursor-pointer appearance-none"
+                className="w-full pl-10 pr-8 py-2.5 text-xs bg-white border-field rounded-2xl text-[#1a1c1d] transition-colors cursor-pointer appearance-none"
               >
-                {/* Se houver capital para este estado, destaca ela no topo */}
                 {STATE_CAPITALS[state] && citiesList.includes(STATE_CAPITALS[state]) && !citySearchFilter && (
-                  <optgroup label="Capital do Estado">
+                  <optgroup label="Capital">
                     <option value={STATE_CAPITALS[state]}>
                       ★ {STATE_CAPITALS[state]} (Capital)
                     </option>
@@ -346,7 +339,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({
                   ))}
                 </optgroup>
               </select>
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-[#a0a3bd] text-xs">
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-[#9e9ea7] text-xs">
                 ▼
               </div>
             </div>
@@ -355,7 +348,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({
 
         {/* Quick Keyword Chips */}
         <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none text-xs">
-          <span className="text-[#a0a3bd] font-medium whitespace-nowrap text-[11px] uppercase tracking-wide">
+          <span className="text-[#9e9ea7] font-medium whitespace-nowrap text-[11px] uppercase tracking-wide">
             Sugestões:
           </span>
           {POPULAR_KEYWORDS.slice(0, 7).map((kw) => (
@@ -363,10 +356,10 @@ export const SearchForm: React.FC<SearchFormProps> = ({
               key={kw}
               type="button"
               onClick={() => setKeyword(kw)}
-              className={`px-3 py-1 rounded-xl border text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+              className={`px-3 py-1 rounded-full border text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                 keyword.toLowerCase() === kw.toLowerCase()
-                  ? 'bg-[#ecebfa] text-[#5c59e8] border-[#5c59e8]/30 shadow-2xs'
-                  : 'bg-[#f3f5fa] text-[#6e7191] border-slate-200/60 hover:bg-[#ecebfa] hover:text-[#5c59e8]'
+                  ? 'bg-[#fff7db] text-[#7c5800] border-[#ffb800]/40 shadow-2xs'
+                  : 'bg-[#f3f3f5] text-[#6e6e77] border-[#e2e2e4] hover:bg-[#fff7db] hover:text-[#7c5800]'
               }`}
             >
               {kw}
@@ -375,24 +368,24 @@ export const SearchForm: React.FC<SearchFormProps> = ({
         </div>
 
         {/* Advanced Filters Toggle & Action Buttons */}
-        <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="pt-2 border-t border-[#edeef0] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6e7191] hover:text-[#5c59e8] cursor-pointer transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6e6e77] hover:text-[#7c5800] cursor-pointer transition-colors"
             >
-              <Filter className="w-3.5 h-3.5 text-[#5c59e8]" />
-              {showAdvanced ? 'Ocultar Filtros' : 'Filtros Avançados'}
+              <Filter className="w-3.5 h-3.5 text-[#ffb800]" />
+              {showAdvanced ? 'Menos filtros' : 'Filtros avançados'}
             </button>
 
             {hasResults && (
               <button
                 type="button"
                 onClick={onReset}
-                className="inline-flex items-center gap-1 text-xs text-[#6e7191] hover:text-rose-600 cursor-pointer transition-colors"
+                className="inline-flex items-center gap-1 text-xs text-[#6e6e77] hover:text-rose-600 cursor-pointer transition-colors"
               >
-                <RefreshCw className="w-3 h-3" /> Limpar busca
+                <RefreshCw className="w-3 h-3" /> Limpar
               </button>
             )}
           </div>
@@ -401,12 +394,12 @@ export const SearchForm: React.FC<SearchFormProps> = ({
             <button
               type="submit"
               disabled={isLoading || !keyword.trim() || !city.trim()}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 bg-[#5c59e8] hover:bg-[#4f4cd9] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold rounded-2xl shadow-md hover:shadow-lg transition-all cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#ffb800] hover:bg-[#f5a623] active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed text-[#1a1a1a] text-xs font-bold rounded-full border border-[#ffb800] border-btn-glow transition-all cursor-pointer shadow-sm"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Buscando no Google Places...</span>
+                  <span>Buscando...</span>
                 </>
               ) : (
                 <>
@@ -420,15 +413,15 @@ export const SearchForm: React.FC<SearchFormProps> = ({
 
         {/* Advanced Filters Panel */}
         {showAdvanced && (
-          <div className="pt-3 pb-1 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+          <div className="pt-3 pb-1 border-t border-[#edeef0] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={onlyWithWhatsapp}
                 onChange={(e) => setOnlyWithWhatsapp(e.target.checked)}
-                className="rounded text-[#5c59e8] focus:ring-[#5c59e8] w-4 h-4 border-slate-300 cursor-pointer"
+                className="rounded text-[#ffb800] focus:ring-[#ffb800] w-4 h-4 border-[#e2e2e4] cursor-pointer"
               />
-              <span className="font-semibold text-[#1e1e2f]">Somente com WhatsApp / Celular</span>
+              <span className="font-semibold text-[#1a1c1d]">Apenas com WhatsApp</span>
             </label>
 
             <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -436,29 +429,29 @@ export const SearchForm: React.FC<SearchFormProps> = ({
                 type="checkbox"
                 checked={onlyWithPhone}
                 onChange={(e) => setOnlyWithPhone(e.target.checked)}
-                className="rounded text-[#5c59e8] focus:ring-[#5c59e8] w-4 h-4 border-slate-300 cursor-pointer"
+                className="rounded text-[#ffb800] focus:ring-[#ffb800] w-4 h-4 border-[#e2e2e4] cursor-pointer"
               />
-              <span className="font-semibold text-[#1e1e2f]">Somente com qualquer telefone</span>
+              <span className="font-semibold text-[#1a1c1d]">Apenas com telefone</span>
             </label>
 
-            <label className="flex items-center gap-2 cursor-pointer select-none bg-[#ecebfa]/50 p-2 rounded-xl border border-[#5c59e8]/20">
+            <label className="flex items-center gap-2 cursor-pointer select-none bg-[#fff7db]/60 p-2 rounded-xl border border-[#ffb800]/30">
               <input
                 type="checkbox"
                 checked={accumulate}
                 onChange={(e) => handleToggleAccumulate(e.target.checked)}
-                className="rounded text-[#5c59e8] focus:ring-[#5c59e8] w-4 h-4 border-slate-300 cursor-pointer"
+                className="rounded text-[#ffb800] focus:ring-[#ffb800] w-4 h-4 border-[#e2e2e4] cursor-pointer"
               />
-              <span className="font-bold text-[#5c59e8]">
-                Acumular contatos na lista (não apagar anteriores)
+              <span className="font-bold text-[#7c5800]">
+                Acumular resultados na lista
               </span>
             </label>
 
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-[#1e1e2f] whitespace-nowrap">Avaliação Mínima:</span>
+              <span className="font-semibold text-[#1a1c1d] whitespace-nowrap">Nota mínima:</span>
               <select
                 value={minRating}
                 onChange={(e) => setMinRating(Number(e.target.value))}
-                className="px-2 py-1 bg-[#f3f5fa] border border-slate-200 rounded-xl text-xs text-[#1e1e2f]"
+                className="px-2 py-1 bg-white border border-[#e2e2e4] rounded-xl text-xs text-[#1a1c1d]"
               >
                 <option value={0}>Todas</option>
                 <option value={3.5}>3.5+ estrelas</option>
@@ -468,16 +461,16 @@ export const SearchForm: React.FC<SearchFormProps> = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-[#1e1e2f] whitespace-nowrap">Qtd. a Carregar:</span>
+              <span className="font-semibold text-[#1a1c1d] whitespace-nowrap">Quantidade:</span>
               <select
                 value={maxResults}
                 onChange={(e) => setMaxResults(Number(e.target.value))}
-                className="px-2.5 py-1 bg-[#f3f5fa] border border-slate-200 rounded-xl text-xs font-bold text-[#5c59e8]"
+                className="px-2.5 py-1 bg-white border border-[#e2e2e4] rounded-xl text-xs font-bold text-[#7c5800]"
               >
                 <option value={20}>20 empresas</option>
                 <option value={40}>40 empresas</option>
                 <option value={60}>60 empresas</option>
-                <option value={100}>100 empresas (máx)</option>
+                <option value={100}>100 empresas</option>
               </select>
             </div>
           </div>

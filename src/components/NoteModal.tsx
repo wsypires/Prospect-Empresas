@@ -39,14 +39,14 @@ export const NoteModal: React.FC<NoteModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white rounded-3xl max-w-md w-full p-6 border-modal animate-in fade-in zoom-in-95 duration-150">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shadow-2xs">
               <StickyNote className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#1e1e2f]">Anotações do Contato</h3>
+              <h3 className="text-sm font-bold text-[#1e1e2f]">Anotações</h3>
               <p className="text-[11px] text-[#6e7191] line-clamp-1">{contact.name}</p>
             </div>
           </div>
@@ -65,20 +65,17 @@ export const NoteModal: React.FC<NoteModalProps> = ({
               htmlFor="contact-notes-input"
               className="block text-xs font-bold text-[#1e1e2f] uppercase tracking-wider mb-1.5"
             >
-              Observações / Histórico de Prospecção
+              Anotação
             </label>
             <textarea
               id="contact-notes-input"
               rows={4}
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
-              placeholder="Ex: Falei com o gerente Marcelo; enviar proposta na sexta-feira; tem interesse em renovação de site..."
-              className="w-full px-3.5 py-2.5 text-xs bg-[#f3f5fa] border border-slate-200 rounded-2xl text-[#1e1e2f] placeholder-[#a0a3bd] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#5c59e8]/20 focus:border-[#5c59e8] transition-all"
+              placeholder="Digite uma observação sobre este contato..."
+              className="w-full px-3.5 py-2.5 text-xs bg-[#f3f5fa] border-field rounded-2xl text-[#1e1e2f] placeholder-[#a0a3bd] transition-all"
               autoFocus
             />
-            <p className="text-[11px] text-[#6e7191] mt-1.5">
-              As anotações são salvas permanentemente no navegador e preservadas mesmo em novas buscas.
-            </p>
           </div>
 
           <div className="flex items-center justify-between pt-2 border-t border-slate-100">
@@ -89,7 +86,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
                 className="inline-flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 font-semibold cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>Apagar nota</span>
+                <span>Excluir</span>
               </button>
             ) : <div />}
 
@@ -106,7 +103,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#5c59e8] hover:bg-[#4f4cd9] text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer transition-all"
               >
                 <Save className="w-3.5 h-3.5" />
-                <span>Salvar Nota</span>
+                <span>Salvar</span>
               </button>
             </div>
           </div>

@@ -52,10 +52,10 @@ export const ContactCard: React.FC<ContactCardProps> = ({
 
   return (
     <div
-      className={`bg-white rounded-3xl border p-5 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover-elevate transition-all flex flex-col justify-between ${
+      className={`bg-white rounded-3xl p-5 border-glow-card transition-all flex flex-col justify-between ${
         isSelected
-          ? 'border-[#5c59e8] ring-2 ring-[#5c59e8]/20 bg-[#ecebfa]/10'
-          : 'border-slate-100 hover:border-slate-200'
+          ? '!border-[#5c59e8] ring-2 ring-[#5c59e8]/30 bg-[#ecebfa]/15'
+          : ''
       }`}
     >
       <div>
@@ -137,7 +137,7 @@ export const ContactCard: React.FC<ContactCardProps> = ({
             <div
               onClick={() => onOpenNoteModal?.(contact)}
               className="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-2 text-[11px] text-amber-900 cursor-pointer hover:bg-amber-100/80 transition-colors flex items-start gap-1.5"
-              title="Clique para editar a anotação"
+              title="Editar anotação"
             >
               <StickyNote className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
               <p className="line-clamp-2 leading-relaxed font-medium">{contact.notes}</p>
@@ -149,7 +149,7 @@ export const ContactCard: React.FC<ContactCardProps> = ({
               className="inline-flex items-center gap-1 text-[11px] text-[#6e7191] hover:text-[#5c59e8] font-medium cursor-pointer"
             >
               <StickyNote className="w-3 h-3 text-[#a0a3bd]" />
-              <span>+ Adicionar anotação</span>
+              <span>+ Nota</span>
             </button>
           ) : null}
         </div>
@@ -177,7 +177,7 @@ export const ContactCard: React.FC<ContactCardProps> = ({
             {contact.cnpj ? (
               <span className="font-mono text-[#1e1e2f] font-bold">{formatCnpj(contact.cnpj)}</span>
             ) : (
-              <span className="text-[#a0a3bd] italic">Pendente</span>
+              <span className="text-[#a0a3bd] italic">Não cadastrado</span>
             )}
           </div>
           <button
@@ -186,7 +186,7 @@ export const ContactCard: React.FC<ContactCardProps> = ({
             className="text-[11px] font-bold text-[#5c59e8] hover:text-[#4f4cd9] cursor-pointer inline-flex items-center gap-1"
           >
             <Search className="w-3 h-3" />
-            {contact.cnpj ? 'Editar' : 'Localizar'}
+            {contact.cnpj ? 'Editar' : 'Consultar'}
           </button>
         </div>
 
@@ -217,7 +217,7 @@ export const ContactCard: React.FC<ContactCardProps> = ({
             className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-2xl shadow-xs transition-colors cursor-pointer"
           >
             <MessageCircle className="w-4 h-4 fill-white" />
-            <span>Chamar no WhatsApp</span>
+            <span>WhatsApp</span>
           </a>
         ) : hasPhone ? (
           <a
@@ -240,7 +240,7 @@ export const ContactCard: React.FC<ContactCardProps> = ({
             target="_blank"
             rel="noreferrer"
             className="p-2 text-[#6e7191] hover:text-[#5c59e8] hover:bg-[#ecebfa] rounded-2xl border border-slate-200 transition-colors cursor-pointer"
-            title="Acessar site da empresa"
+            title="Website"
           >
             <Globe className="w-4 h-4" />
           </a>
@@ -252,7 +252,7 @@ export const ContactCard: React.FC<ContactCardProps> = ({
           target="_blank"
           rel="noreferrer"
           className="p-2 text-[#6e7191] hover:text-[#5c59e8] hover:bg-[#ecebfa] rounded-2xl border border-slate-200 transition-colors cursor-pointer"
-          title="Ver no Google Maps"
+          title="Google Maps"
         >
           <ExternalLink className="w-4 h-4" />
         </a>

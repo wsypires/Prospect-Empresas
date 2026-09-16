@@ -31,17 +31,17 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
+      <div className="bg-white rounded-3xl max-w-lg w-full p-6 border-modal">
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-[#ecebfa] text-[#5c59e8] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-2xl bg-[#ecebfa] border border-[#5c59e8]/25 text-[#5c59e8] flex items-center justify-center shadow-2xs">
               <KeyRound className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-base font-bold text-[#1e1e2f]">
-                Chave de API Google Maps Platform
+                Chave de API Google Maps
               </h2>
-              <p className="text-xs text-[#6e7191]">Configuração de servidor segura</p>
+              <p className="text-xs text-[#6e7191]">Places API</p>
             </div>
           </div>
           <button
@@ -56,7 +56,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
         <form onSubmit={handleSave} className="mt-5 space-y-4">
           <div>
             <label htmlFor="api-key-input" className="block text-xs font-bold text-[#1e1e2f] uppercase tracking-wider mb-1.5">
-              Google Maps API Key (Places API New)
+              Chave da API
             </label>
             <input
               id="api-key-input"
@@ -64,20 +64,15 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
               value={apiKeyInput}
               onChange={(e) => setApiKeyInput(e.target.value)}
               placeholder="AIzaSy..."
-              className="w-full px-4 py-2.5 text-xs font-mono border border-slate-200 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-[#5c59e8]/20 focus:border-[#5c59e8] bg-[#f3f5fa] text-[#1e1e2f]"
+              className="w-full px-4 py-2.5 text-xs font-mono border-field rounded-2xl bg-[#f3f5fa] text-[#1e1e2f]"
             />
-            <p className="text-xs text-[#6e7191] mt-1.5 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#10b981] inline" />
-              Sua chave é utilizada com segurança através do servidor para consulta do Google Places.
-            </p>
           </div>
 
-          <div className="bg-[#edf3ff] border border-blue-100/80 rounded-2xl p-4 text-xs text-[#1e1e2f] space-y-1.5">
+          <div className="bg-[#edf3ff] border border-blue-200/70 rounded-2xl p-4 text-xs text-[#1e1e2f] space-y-1.5 shadow-2xs">
             <p className="font-bold text-[#3b82f6]">Requisitos no Google Cloud Console:</p>
             <ul className="list-disc pl-4 space-y-1 text-[#6e7191]">
-              <li>API ativada: <strong>Places API (New)</strong></li>
-              <li>Faturamento (Billing) ativo no projeto Google Cloud</li>
-              <li>Sem restrições de IP que bloqueiem requisições de servidor</li>
+              <li>Places API (New) ativada</li>
+              <li>Faturamento configurado no projeto</li>
             </ul>
             <a
               href="https://console.cloud.google.com/google/maps-apis/overview"
@@ -85,7 +80,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-[#5c59e8] hover:underline pt-1 font-bold"
             >
-              Abrir Google Cloud Console <ExternalLink className="w-3 h-3" />
+              Console do Google Cloud <ExternalLink className="w-3 h-3" />
             </a>
           </div>
 
@@ -99,14 +94,14 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 text-xs font-bold text-white bg-[#5c59e8] hover:bg-[#4f4cd9] rounded-2xl shadow-md cursor-pointer transition-colors"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 text-xs font-bold text-white bg-[#5c59e8] hover:bg-[#4f4cd9] rounded-2xl border border-white/20 border-btn-glow cursor-pointer transition-colors"
             >
               {savedSuccess ? (
                 <>
-                  <Check className="w-4 h-4" /> Salvo!
+                  <Check className="w-4 h-4" /> Salvo
                 </>
               ) : (
-                'Salvar Chave'
+                'Salvar'
               )}
             </button>
           </div>

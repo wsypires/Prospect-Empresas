@@ -31,6 +31,22 @@ export interface PlaceContact {
   isFavorite?: boolean;
 }
 
+export interface ContactFilters {
+  keyword: string;
+  country: string;
+  state: string;
+  city: string;
+  status: 'all' | 'Pendente' | 'Enviado';
+}
+
+export const DEFAULT_CONTACT_FILTERS: ContactFilters = {
+  keyword: '',
+  country: 'all',
+  state: 'all',
+  city: '',
+  status: 'all',
+};
+
 export interface SearchFormData {
   keyword: string;
   country: string;

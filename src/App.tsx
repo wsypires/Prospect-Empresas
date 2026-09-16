@@ -9,14 +9,14 @@ import { SearchForm } from './components/SearchForm';
 import { MetricsOverview } from './components/MetricsOverview';
 import { ContactsTable } from './components/ContactsTable';
 import { ContactCard } from './components/ContactCard';
-import { InteractiveMap } from './components/InteractiveMap';
 import { ExportModal } from './components/ExportModal';
 import { ApiKeyModal } from './components/ApiKeyModal';
 import { CnpjModal } from './components/CnpjModal';
 import { NoteModal } from './components/NoteModal';
 import { WhatsAppTemplateModal } from './components/WhatsAppTemplateModal';
-import { PlaceContact, SearchFormData } from './types';
+import { PlaceContact, SearchFormData, ContactFilters, DEFAULT_CONTACT_FILTERS } from './types';
 import { getSavedWhatsAppTemplate, saveWhatsAppTemplate } from './utils/whatsappUtils';
+import { applyContactFilters } from './utils/filterUtils';
 import {
   loadSavedContacts,
   saveContacts,
@@ -42,9 +42,10 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [lastQueryLabel, setLastQueryLabel] = useState<string>('');
   
-  // View mode: table, cards or map
-  const [activeView, setActiveView] = useState<'table' | 'cards' | 'map'>('table');
+  // View mode: table or cards
+  const [activeView, setActiveView] = useState<'table' | 'cards'>('table');
   const [headerSearchText, setHeaderSearchText] = useState<string>('');
+  const [contactFilters, setContactFilters] = useState<ContactFilters>(DEFAULT_CONTACT_FILTERS);
 
   // Modals
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState<boolean>(false);
@@ -260,7 +261,7 @@ export default function App() {
   }, [contacts, headerSearchText]);
 
   return (
-    <div className="min-h-screen bg-[#e2e8f5] text-[#1e1e2f] flex flex-col font-sans antialiased">
+    <div className="min-h-screen bg-[#f9f9fb] text-[#1a1c1d] flex flex-col font-sans antialiased">
       {/* Top SUCCESS Navigation Bar */}
       <Header
         hasApiKey={hasApiKey}
@@ -331,13 +332,15 @@ export default function App() {
                 onToggleFavorite={handleToggleFavorite}
                 onOpenNoteModal={handleOpenNoteModal}
                 whatsappTemplate={whatsappTemplate}
+                filters={contactFilters}
+                onFiltersChange={setContactFilters}
               />
             )}
 
             {/* View Mode 2: Cards Grid */}
             {activeView === 'cards' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {displayedContacts.map((contact) => (
+                {applyContactFilters(displayedContacts, contactFilters).map((contact) => (
                   <ContactCard
                     key={contact.id}
                     contact={contact}
@@ -352,27 +355,17 @@ export default function App() {
                 ))}
               </div>
             )}
-
-            {/* View Mode 3: Interactive Google Map */}
-            {activeView === 'map' && (
-              <InteractiveMap
-                contacts={displayedContacts}
-                apiKey={customApiKey}
-                onOpenCnpjModal={handleOpenCnpjModal}
-                whatsappTemplate={whatsappTemplate}
-              />
-            )}
           </div>
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="w-full py-4 text-center text-xs text-[#6e7191] border-t border-slate-200/50 bg-white/60">
+      {/* Footer (Hidden on mobile so no bottom bar is needed) */}
+      <footer className="hidden sm:block w-full py-3.5 text-center text-xs text-[#6e7191] border-t border-slate-200/50 bg-white/60">
         <div className="max-w-[1400px] mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p>Encontre Empresas &bull; Extração em Tempo Real Google Places &bull; WhatsApp B2B</p>
-          <div className="flex items-center gap-1 text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+          <p>Encontre Empresas &bull; Prospecção Comercial B2B</p>
+          <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Persistência local ativa: dados e alterações preservados</span>
+            <span>Dados salvos localmente</span>
           </div>
         </div>
       </footer>
@@ -400,10 +393,11 @@ export default function App() {
       <ExportModal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
-        contacts={contacts}
+        contacts={displayedContacts}
         selectedIds={selectedIds}
         searchQueryLabel={lastQueryLabel}
         onBackupRestored={handleBackupRestored}
+        initialFilters={contactFilters}
       />
 
       <CnpjModal

@@ -19,9 +19,14 @@ import {
   Tag,
   StickyNote,
 } from 'lucide-react';
-import { PlaceContact } from '../types';
+import { PlaceContact, ContactFilters, DEFAULT_CONTACT_FILTERS } from '../types';
 import { formatCnpj } from '../utils/exportUtils';
 import { formatWhatsAppUrl } from '../utils/whatsappUtils';
+import {
+  applyContactFilters,
+  hasActiveContactFilters,
+  getFilterMetadata,
+} from '../utils/filterUtils';
 
 interface ContactsTableProps {
   contacts: PlaceContact[];
@@ -35,6 +40,8 @@ interface ContactsTableProps {
   onToggleFavorite?: (id: string) => void;
   onOpenNoteModal?: (contact: PlaceContact) => void;
   whatsappTemplate?: string;
+  filters?: ContactFilters;
+  onFiltersChange?: (filters: ContactFilters) => void;
 }
 
 export const ContactsTable: React.FC<ContactsTableProps> = ({
@@ -49,20 +56,39 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
   onToggleFavorite,
   onOpenNoteModal,
   whatsappTemplate,
+  filters,
+  onFiltersChange,
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Column Filter States
+  // Column Filter States (Only: Palavra Chave, País, Estado, Cidade, Status)
   const [showColumnFilters, setShowColumnFilters] = useState(true);
-  const [filterKeyword, setFilterKeyword] = useState('');
-  const [filterName, setFilterName] = useState('');
-  const [filterCnpj, setFilterCnpj] = useState<'all' | 'with_cnpj' | 'without_cnpj'>('all');
-  const [filterPhone, setFilterPhone] = useState<'all' | 'whatsapp' | 'any_phone' | 'no_phone'>('all');
-  const [filterAddress, setFilterAddress] = useState('');
-  const [filterRating, setFilterRating] = useState<number>(0);
-  const [filterOutreachStatus, setFilterOutreachStatus] = useState<'all' | 'Enviado' | 'Pendente'>('all');
+  const [localFilters, setLocalFilters] = useState<ContactFilters>(DEFAULT_CONTACT_FILTERS);
+  const currentFilters = filters || localFilters;
 
-  // Pagination State (maximum 100 per page as requested: "a pagina deve carregar maximo de 100 empresas por pagina > pagina 2, 3, 4...")
+  const updateFilter = (partial: Partial<ContactFilters>) => {
+    const next = { ...currentFilters, ...partial };
+    if (onFiltersChange) {
+      onFiltersChange(next);
+    } else {
+      setLocalFilters(next);
+    }
+    setCurrentPage(1);
+  };
+
+  const handleClearFilters = () => {
+    if (onFiltersChange) {
+      onFiltersChange(DEFAULT_CONTACT_FILTERS);
+    } else {
+      setLocalFilters(DEFAULT_CONTACT_FILTERS);
+    }
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters = hasActiveContactFilters(currentFilters);
+  const metadata = useMemo(() => getFilterMetadata(contacts), [contacts]);
+
+  // Pagination State (maximum 100 per page)
   const [pageSize, setPageSize] = useState<number>(25);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -72,74 +98,10 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
     setTimeout(() => setCopiedId(null), 1500);
   };
 
-  const hasActiveFilters = Boolean(
-    filterKeyword.trim() ||
-      filterName.trim() ||
-      filterCnpj !== 'all' ||
-      filterPhone !== 'all' ||
-      filterAddress.trim() ||
-      filterRating > 0 ||
-      filterOutreachStatus !== 'all'
-  );
-
-  const handleClearFilters = () => {
-    setFilterKeyword('');
-    setFilterName('');
-    setFilterCnpj('all');
-    setFilterPhone('all');
-    setFilterAddress('');
-    setFilterRating(0);
-    setFilterOutreachStatus('all');
-    setCurrentPage(1);
-  };
-
-  // Filter contacts by column values
+  // Filter contacts by the 5 exact fields: Palavra Chave, País, Estado, Cidade, Status
   const filteredContacts = useMemo(() => {
-    return contacts.filter((contact) => {
-      // Filter Keyword
-      if (filterKeyword.trim()) {
-        const kw = (contact.keyword || '').toLowerCase();
-        if (!kw.includes(filterKeyword.toLowerCase().trim())) return false;
-      }
-
-      // Filter Name
-      if (filterName.trim()) {
-        const nameMatch = contact.name.toLowerCase().includes(filterName.toLowerCase().trim());
-        const typeMatch = (contact.types || []).some((t) =>
-          t.toLowerCase().includes(filterName.toLowerCase().trim())
-        );
-        if (!nameMatch && !typeMatch) return false;
-      }
-
-      // Filter CNPJ
-      if (filterCnpj === 'with_cnpj' && !contact.cnpj) return false;
-      if (filterCnpj === 'without_cnpj' && contact.cnpj) return false;
-
-      // Filter Phone / WhatsApp
-      if (filterPhone === 'whatsapp' && !contact.whatsappPhone) return false;
-      if (filterPhone === 'any_phone' && !contact.nationalPhone && !contact.whatsappPhone) return false;
-      if (filterPhone === 'no_phone' && (contact.nationalPhone || contact.whatsappPhone)) return false;
-
-      // Filter Address
-      if (filterAddress.trim()) {
-        const addrMatch = contact.address.toLowerCase().includes(filterAddress.toLowerCase().trim());
-        const cityMatch = contact.city.toLowerCase().includes(filterAddress.toLowerCase().trim());
-        const neighMatch = (contact.neighborhood || '').toLowerCase().includes(filterAddress.toLowerCase().trim());
-        if (!addrMatch && !cityMatch && !neighMatch) return false;
-      }
-
-      // Filter Rating
-      if (filterRating > 0 && (contact.rating || 0) < filterRating) return false;
-
-      // Filter Outreach Status (Enviado / Pendente)
-      if (filterOutreachStatus !== 'all') {
-        const currentStatus = contact.outreachStatus || 'Pendente';
-        if (currentStatus !== filterOutreachStatus) return false;
-      }
-
-      return true;
-    });
-  }, [contacts, filterKeyword, filterName, filterCnpj, filterPhone, filterAddress, filterRating, filterOutreachStatus]);
+    return applyContactFilters(contacts, currentFilters);
+  }, [contacts, currentFilters]);
 
   // Reset page if page is out of bounds
   const totalItems = filteredContacts.length;
@@ -198,9 +160,9 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover-elevate overflow-hidden flex flex-col transition-all">
+    <div className="bg-white rounded-3xl border-glow-card overflow-hidden flex flex-col transition-all">
       {/* Top Table Toolbar: Filter toggle & Multi-share CTA */}
-      <div className="p-4 bg-[#f8fafd] border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="p-3.5 sm:p-4 bg-[#f8fafd] border-b border-slate-100 flex flex-wrap items-center justify-between gap-2.5 text-xs">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -212,7 +174,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
             }`}
           >
             <Filter className="w-3.5 h-3.5 text-[#5c59e8]" />
-            <span>{showColumnFilters ? 'Ocultar Filtros' : 'Filtros de Coluna'}</span>
+            <span>{showColumnFilters ? 'Ocultar filtros' : 'Filtros'}</span>
             {hasActiveFilters && (
               <span className="w-2 h-2 rounded-full bg-[#5c59e8] inline-block" />
             )}
@@ -223,32 +185,31 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
               type="button"
               onClick={handleClearFilters}
               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-slate-500 hover:text-rose-600 bg-white border border-slate-200 rounded-xl cursor-pointer"
-              title="Limpar todos os filtros de coluna"
+              title="Limpar filtros"
             >
               <X className="w-3 h-3" />
-              <span>Limpar Filtros</span>
+              <span>Limpar</span>
             </button>
           )}
 
-          <span className="text-[#6e7191]">
-            Filtrados: <strong className="text-[#1e1e2f]">{filteredContacts.length}</strong> de {contacts.length} empresas
+          <span className="text-[#6e7191] text-xs">
+            <strong className="text-[#1e1e2f]">{filteredContacts.length}</strong> de {contacts.length} empresas
           </span>
         </div>
 
         {/* Selected Counter & Bulk Status Quick Action */}
         {selectedIds.size > 0 && (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold text-[#5c59e8] bg-[#ecebfa] px-3 py-1.5 rounded-xl border border-[#5c59e8]/20">
+            <span className="text-xs font-bold text-[#5c59e8] bg-[#ecebfa] px-2.5 py-1 rounded-xl border border-[#5c59e8]/20">
               {selectedIds.size} selecionado(s)
             </span>
             {onBulkUpdateStatus && (
               <div className="inline-flex items-center p-0.5 rounded-xl bg-slate-100 border border-slate-200">
-                <span className="text-[10px] font-bold text-slate-500 uppercase px-2">Marcar:</span>
                 <button
                   type="button"
                   onClick={() => onBulkUpdateStatus('Enviado')}
                   className="px-2.5 py-1 text-xs font-bold text-emerald-800 bg-emerald-100/80 hover:bg-emerald-200 rounded-lg cursor-pointer transition-colors"
-                  title="Marcar selecionados como Enviado"
+                  title="Marcar como Enviado"
                 >
                   ✓ Enviado
                 </button>
@@ -256,7 +217,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                   type="button"
                   onClick={() => onBulkUpdateStatus('Pendente')}
                   className="px-2.5 py-1 text-xs font-bold text-amber-800 bg-amber-100/80 hover:bg-amber-200 rounded-lg cursor-pointer transition-colors ml-1"
-                  title="Marcar selecionados como Pendente"
+                  title="Marcar como Pendente"
                 >
                   ⏳ Pendente
                 </button>
@@ -274,7 +235,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
               onChange={handleToggleSelectAllOnPage}
               className="rounded text-[#5c59e8] focus:ring-[#5c59e8] w-4 h-4 border-slate-300 cursor-pointer"
             />
-            <span>Selecionar todos da página ({paginatedContacts.length})</span>
+            <span>Selecionar página ({paginatedContacts.length})</span>
           </label>
           <span className="text-[11px] text-[#6e7191]">
             {selectedIds.size} selecionado(s)
@@ -282,131 +243,132 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
         </div>
       </div>
 
-      {/* PAINEL DE FILTROS MOBILE (Exibido apenas em telas menores quando ativado) */}
+      {/* PAINEL DE FILTROS UNIFICADO: Palavra-Chave, País, Estado, Cidade, Status */}
       {showColumnFilters && (
-        <div className="md:hidden p-3.5 bg-slate-50 border-b border-slate-200 space-y-2.5 text-xs">
+        <div className="p-3.5 sm:p-4 bg-[#f8fafd] border-b border-slate-200/80 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="font-bold text-[11px] text-[#1e1e2f] uppercase tracking-wider flex items-center gap-1">
-              <Filter className="w-3.5 h-3.5 text-[#5c59e8]" />
-              Filtros Rápidos
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-xs text-[#1e1e2f] uppercase tracking-wider flex items-center gap-1.5">
+                <Filter className="w-3.5 h-3.5 text-[#5c59e8]" />
+                Filtros
+              </span>
+              <span className="text-[11px] font-semibold text-[#6e7191] bg-white px-2 py-0.5 rounded-md border border-slate-200">
+                {filteredContacts.length} de {contacts.length} empresas
+              </span>
+            </div>
             {hasActiveFilters && (
               <button
                 type="button"
                 onClick={handleClearFilters}
-                className="text-[11px] font-bold text-rose-600 hover:underline"
+                className="text-xs font-bold text-rose-600 hover:text-rose-700 hover:underline inline-flex items-center gap-1 cursor-pointer"
               >
-                Limpar Todos
+                <X className="w-3 h-3" />
+                <span>Limpar filtros</span>
               </button>
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
+            {/* 1. Palavra Chave */}
             <div>
-              <label className="block text-[10px] font-bold text-[#6e7191] uppercase mb-0.5">Palavra-chave:</label>
-              <input
-                type="text"
-                value={filterKeyword}
-                onChange={(e) => {
-                  setFilterKeyword(e.target.value);
-                  setCurrentPage(1);
-                }}
-                placeholder="Filtrar palavra..."
-                className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-[#1e1e2f] focus:outline-hidden focus:ring-1 focus:ring-[#5c59e8]"
-              />
+              <label className="block text-[10px] font-bold text-[#6e7191] uppercase tracking-wider mb-1">
+                Palavra-Chave:
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={currentFilters.keyword}
+                  onChange={(e) => updateFilter({ keyword: e.target.value })}
+                  placeholder="Ex: Farmácia, Dentista..."
+                  className="w-full pl-7 pr-2.5 py-1.5 text-xs bg-white border-field rounded-xl text-[#1e1e2f] placeholder-[#a0a3bd] transition-all"
+                />
+                <Search className="w-3.5 h-3.5 text-[#a0a3bd] absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
+            {/* 2. País */}
             <div>
-              <label className="block text-[10px] font-bold text-[#6e7191] uppercase mb-0.5">Empresa / Nicho:</label>
-              <input
-                type="text"
-                value={filterName}
-                onChange={(e) => {
-                  setFilterName(e.target.value);
-                  setCurrentPage(1);
-                }}
-                placeholder="Filtrar por nome..."
-                className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-[#1e1e2f] focus:outline-hidden focus:ring-1 focus:ring-[#5c59e8]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold text-[#6e7191] uppercase mb-0.5">CNPJ:</label>
+              <label className="block text-[10px] font-bold text-[#6e7191] uppercase tracking-wider mb-1">
+                País:
+              </label>
               <select
-                value={filterCnpj}
-                onChange={(e: any) => {
-                  setFilterCnpj(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-[#1e1e2f] focus:outline-hidden focus:ring-1 focus:ring-[#5c59e8]"
+                value={currentFilters.country}
+                onChange={(e) => updateFilter({ country: e.target.value })}
+                className="w-full px-2.5 py-1.5 text-xs bg-white border-field rounded-xl text-[#1e1e2f] transition-all cursor-pointer"
+              >
+                <option value="all">Todos os países</option>
+                {metadata.countries.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 3. Estado */}
+            <div>
+              <label className="block text-[10px] font-bold text-[#6e7191] uppercase tracking-wider mb-1">
+                Estado:
+              </label>
+              <select
+                value={currentFilters.state}
+                onChange={(e) => updateFilter({ state: e.target.value })}
+                className="w-full px-2.5 py-1.5 text-xs bg-white border-field rounded-xl text-[#1e1e2f] transition-all cursor-pointer"
+              >
+                <option value="all">Todos os estados</option>
+                {metadata.states.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 4. Cidade */}
+            <div>
+              <label className="block text-[10px] font-bold text-[#6e7191] uppercase tracking-wider mb-1">
+                Cidade:
+              </label>
+              {metadata.cities.length <= 15 ? (
+                <select
+                  value={currentFilters.city}
+                  onChange={(e) => updateFilter({ city: e.target.value })}
+                  className="w-full px-2.5 py-1.5 text-xs bg-white border-field rounded-xl text-[#1e1e2f] transition-all cursor-pointer"
+                >
+                  <option value="">Todas as cidades</option>
+                  {metadata.cities.map((ct) => (
+                    <option key={ct} value={ct}>{ct}</option>
+                  ))}
+                </select>
+              ) : (
+                <div className="relative">
+                  <input
+                    type="text"
+                    list="contacts-table-cities-list"
+                    value={currentFilters.city}
+                    onChange={(e) => updateFilter({ city: e.target.value })}
+                    placeholder="Cidade..."
+                    className="w-full pl-7 pr-2.5 py-1.5 text-xs bg-white border-field rounded-xl text-[#1e1e2f] placeholder-[#a0a3bd] transition-all"
+                  />
+                  <MapPin className="w-3.5 h-3.5 text-[#a0a3bd] absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <datalist id="contacts-table-cities-list">
+                    {metadata.cities.map((ct) => (
+                      <option key={ct} value={ct} />
+                    ))}
+                  </datalist>
+                </div>
+              )}
+            </div>
+
+            {/* 5. Status */}
+            <div>
+              <label className="block text-[10px] font-bold text-[#6e7191] uppercase tracking-wider mb-1">
+                Status:
+              </label>
+              <select
+                value={currentFilters.status}
+                onChange={(e: any) => updateFilter({ status: e.target.value })}
+                className="w-full px-2.5 py-1.5 text-xs bg-white border-field rounded-xl text-[#1e1e2f] transition-all cursor-pointer"
               >
                 <option value="all">Todos os status</option>
-                <option value="with_cnpj">Com CNPJ vinculado</option>
-                <option value="without_cnpj">Sem CNPJ vinculado</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold text-[#6e7191] uppercase mb-0.5">WhatsApp / Telefone:</label>
-              <select
-                value={filterPhone}
-                onChange={(e: any) => {
-                  setFilterPhone(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-[#1e1e2f] focus:outline-hidden focus:ring-1 focus:ring-[#5c59e8]"
-              >
-                <option value="all">Todos os contatos</option>
-                <option value="whatsapp">Apenas com WhatsApp</option>
-                <option value="any_phone">Qualquer telefone</option>
-                <option value="no_phone">Sem telefone</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold text-[#6e7191] uppercase mb-0.5">Endereço / Bairro:</label>
-              <input
-                type="text"
-                value={filterAddress}
-                onChange={(e) => {
-                  setFilterAddress(e.target.value);
-                  setCurrentPage(1);
-                }}
-                placeholder="Filtrar endereço..."
-                className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-[#1e1e2f] focus:outline-hidden focus:ring-1 focus:ring-[#5c59e8]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold text-[#6e7191] uppercase mb-0.5">Avaliação Google:</label>
-              <select
-                value={filterRating}
-                onChange={(e) => {
-                  setFilterRating(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-                className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-[#1e1e2f] focus:outline-hidden focus:ring-1 focus:ring-[#5c59e8]"
-              >
-                <option value={0}>Todas as notas</option>
-                <option value={3.5}>3.5+ ⭐</option>
-                <option value={4.0}>4.0+ ⭐</option>
-                <option value={4.5}>4.5+ ⭐</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold text-[#6e7191] uppercase mb-0.5">Status (Enviado / Pendente):</label>
-              <select
-                value={filterOutreachStatus}
-                onChange={(e: any) => {
-                  setFilterOutreachStatus(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-[#1e1e2f] focus:outline-hidden focus:ring-1 focus:ring-[#5c59e8]"
-              >
-                <option value="all">Todos os status</option>
-                <option value="Pendente">⏳ Apenas Pendente</option>
-                <option value="Enviado">✓ Apenas Enviado</option>
+                <option value="Pendente">Pendentes</option>
+                <option value="Enviado">Enviados</option>
               </select>
             </div>
           </div>
@@ -487,7 +449,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                     <div
                       onClick={() => onOpenNoteModal?.(contact)}
                       className="mt-1.5 bg-amber-50/90 border border-amber-200/80 rounded-xl p-1.5 text-[11px] text-amber-900 cursor-pointer hover:bg-amber-100 flex items-start gap-1"
-                      title="Clique para editar a anotação"
+                      title="Editar anotação"
                     >
                       <StickyNote className="w-3 h-3 text-amber-600 shrink-0 mt-0.5" />
                       <p className="line-clamp-1 font-medium">{contact.notes}</p>
@@ -499,7 +461,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                       className="mt-1 inline-flex items-center gap-1 text-[10px] text-[#6e7191] hover:text-[#5c59e8] font-medium cursor-pointer"
                     >
                       <StickyNote className="w-2.5 h-2.5 text-[#a0a3bd]" />
-                      <span>+ Adicionar nota</span>
+                      <span>+ Nota</span>
                     </button>
                   ) : null}
 
@@ -518,7 +480,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                             : 'bg-slate-100 text-slate-500'
                         }`}
                       >
-                        {contact.isOpenNow ? 'Aberto agora' : 'Fechado'}
+                        {contact.isOpenNow ? 'Aberto' : 'Fechado'}
                       </span>
                     )}
                   </div>
@@ -543,7 +505,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-slate-400 italic">Não vinculado</span>
+                    <span className="text-[11px] text-slate-400 italic">Não cadastrado</span>
                     <button
                       type="button"
                       onClick={() => onOpenCnpjModal(contact)}
@@ -559,7 +521,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
               {/* Seção WhatsApp e Telefone com Botão de Ação Direta */}
               <div className="pt-2 border-t border-slate-100 space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[11px] font-bold text-[#6e7191] uppercase tracking-wider">Telefone / WhatsApp:</span>
+                  <span className="text-[11px] font-bold text-[#6e7191] uppercase tracking-wider">Contato:</span>
                   {hasPhone && (
                     <div className="flex items-center gap-1.5 font-mono text-xs text-[#1e1e2f] font-semibold">
                       <span>{displayPhone}</span>
@@ -589,7 +551,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                         className="flex-1 inline-flex items-center justify-center gap-2 py-2 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-colors"
                       >
                         <MessageCircle className="w-4 h-4 fill-white" />
-                        <span>Chamar no WhatsApp</span>
+                        <span>WhatsApp</span>
                       </a>
                     ) : (
                       <a
@@ -597,18 +559,18 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                         className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors"
                       >
                         <Phone className="w-3.5 h-3.5" />
-                        <span>Ligar para Empresa</span>
+                        <span>Ligar</span>
                       </a>
                     )}
                   </div>
                 ) : (
-                  <span className="text-slate-400 text-xs italic block">Sem telefone público cadastrado</span>
+                  <span className="text-slate-400 text-xs italic block">Sem telefone</span>
                 )}
               </div>
 
               {/* Seção Endereço Completo & Link Google Maps */}
               <div className="pt-2 border-t border-slate-100 space-y-1">
-                <span className="text-[11px] font-bold text-[#6e7191] uppercase tracking-wider block">Endereço Completo:</span>
+                <span className="text-[11px] font-bold text-[#6e7191] uppercase tracking-wider block">Endereço:</span>
                 <p className="text-xs text-[#1e1e2f] leading-relaxed break-words">
                   {contact.address}
                 </p>
@@ -620,7 +582,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                     className="inline-flex items-center gap-1 text-[11px] font-bold text-[#5c59e8] hover:text-[#3a34a5] pt-0.5 transition-colors"
                   >
                     <MapPin className="w-3 h-3 text-[#5c59e8]" />
-                    <span>Ver no Google Maps</span>
+                    <span>Google Maps</span>
                     <ExternalLink className="w-2.5 h-2.5" />
                   </a>
                 )}
@@ -636,7 +598,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                         <span>{contact.rating.toFixed(1)}</span>
                       </div>
                       <span className="text-[11px] text-[#6e7191]">
-                        ({contact.userRatingCount} avaliações)
+                        ({contact.userRatingCount})
                       </span>
                     </div>
                   ) : (
@@ -646,7 +608,6 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
 
                 {/* Tag de Seleção de Status (Enviado / Pendente) */}
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase hidden sm:inline">Status:</span>
                   <div className="inline-flex items-center p-0.5 rounded-full bg-slate-100 border border-slate-200 shadow-2xs">
                     <button
                       type="button"
@@ -692,157 +653,35 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                   checked={allOnPageSelected}
                   onChange={handleToggleSelectAllOnPage}
                   className="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4 border-slate-300 cursor-pointer"
-                  title="Selecionar todos desta página"
+                  title="Selecionar página"
                 />
               </th>
               {/* NOVA COLUNA DA PALAVRA CHAVE */}
-              <th scope="col" className="p-3 min-w-[140px]">
+              <th scope="col" className="p-3 min-w-[130px]">
                 <div className="flex items-center gap-1">
                   <Tag className="w-3 h-3 text-indigo-500" />
                   <span>Palavra-chave</span>
                 </div>
               </th>
-              <th scope="col" className="p-3 min-w-[210px]">
-                Empresa / Nome
+              <th scope="col" className="p-3 min-w-[200px]">
+                Empresa
               </th>
-              <th scope="col" className="p-3 min-w-[160px]">
+              <th scope="col" className="p-3 min-w-[150px]">
                 CNPJ
               </th>
-              <th scope="col" className="p-3 min-w-[190px]">
+              <th scope="col" className="p-3 min-w-[180px]">
                 WhatsApp / Telefone
               </th>
-              <th scope="col" className="p-3 min-w-[220px]">
-                Endereço Completo
+              <th scope="col" className="p-3 min-w-[200px]">
+                Endereço
               </th>
-              <th scope="col" className="p-3 min-w-[110px]">
+              <th scope="col" className="p-3 min-w-[100px]">
                 Avaliação
               </th>
-              <th scope="col" className="p-3 min-w-[170px] text-center">
-                Status (Enviado / Pendente)
+              <th scope="col" className="p-3 min-w-[150px] text-center">
+                Status
               </th>
             </tr>
-
-            {/* FILTROS NAS COLUNAS (Interactive Column Filters) */}
-            {showColumnFilters && (
-              <tr className="bg-slate-100/70 border-b border-slate-200">
-                <td className="p-2 text-center text-slate-400">
-                  <Filter className="w-3.5 h-3.5 mx-auto" />
-                </td>
-                {/* Filtro Palavra-chave */}
-                <td className="p-2">
-                  <input
-                    type="text"
-                    value={filterKeyword}
-                    onChange={(e) => {
-                      setFilterKeyword(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    placeholder="Filtrar palavra..."
-                    className="w-full px-2 py-1 text-[11px] bg-white border border-slate-300 rounded-md text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
-                  />
-                </td>
-                {/* Filtro Empresa */}
-                <td className="p-2">
-                  <input
-                    type="text"
-                    value={filterName}
-                    onChange={(e) => {
-                      setFilterName(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    placeholder="Filtrar por nome..."
-                    className="w-full px-2 py-1 text-[11px] bg-white border border-slate-300 rounded-md text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
-                  />
-                </td>
-                {/* Filtro CNPJ */}
-                <td className="p-2">
-                  <select
-                    value={filterCnpj}
-                    onChange={(e: any) => {
-                      setFilterCnpj(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-300 rounded-md text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
-                  >
-                    <option value="all">Todos CNPJ</option>
-                    <option value="with_cnpj">Com CNPJ</option>
-                    <option value="without_cnpj">Sem CNPJ</option>
-                  </select>
-                </td>
-                {/* Filtro Telefone / WhatsApp */}
-                <td className="p-2">
-                  <select
-                    value={filterPhone}
-                    onChange={(e: any) => {
-                      setFilterPhone(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-300 rounded-md text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
-                  >
-                    <option value="all">Todos Telefones</option>
-                    <option value="whatsapp">Com WhatsApp</option>
-                    <option value="any_phone">Qualquer Telefone</option>
-                    <option value="no_phone">Sem Telefone</option>
-                  </select>
-                </td>
-                {/* Filtro Endereço */}
-                <td className="p-2">
-                  <input
-                    type="text"
-                    value={filterAddress}
-                    onChange={(e) => {
-                      setFilterAddress(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    placeholder="Filtrar endereço / bairro..."
-                    className="w-full px-2 py-1 text-[11px] bg-white border border-slate-300 rounded-md text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
-                  />
-                </td>
-                {/* Filtro Avaliação */}
-                <td className="p-2">
-                  <select
-                    value={filterRating}
-                    onChange={(e) => {
-                      setFilterRating(Number(e.target.value));
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-300 rounded-md text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
-                  >
-                    <option value={0}>Todas</option>
-                    <option value={3.5}>3.5+ ⭐</option>
-                    <option value={4.0}>4.0+ ⭐</option>
-                    <option value={4.5}>4.5+ ⭐</option>
-                  </select>
-                </td>
-                {/* Filtro Status (Enviado / Pendente) */}
-                <td className="p-2 text-center">
-                  <div className="flex items-center gap-1">
-                    <select
-                      value={filterOutreachStatus}
-                      onChange={(e: any) => {
-                        setFilterOutreachStatus(e.target.value);
-                        setCurrentPage(1);
-                      }}
-                      className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-300 rounded-md text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
-                    >
-                      <option value="all">Todos</option>
-                      <option value="Pendente">Pendentes</option>
-                      <option value="Enviado">Enviados</option>
-                    </select>
-                    {hasActiveFilters && (
-                      <button
-                        type="button"
-                        onClick={handleClearFilters}
-                        className="px-1.5 py-1 text-[10px] font-semibold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 rounded cursor-pointer shrink-0"
-                        title="Limpar todos os filtros"
-                      >
-                        Limpar
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            )}
           </thead>
 
           <tbody className="divide-y divide-slate-100">
@@ -921,7 +760,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                         <div
                           onClick={() => onOpenNoteModal?.(contact)}
                           className="bg-amber-50/90 border border-amber-200/80 rounded-lg px-2 py-1 text-[11px] text-amber-900 cursor-pointer hover:bg-amber-100 flex items-center gap-1.5 w-fit max-w-xs"
-                          title="Clique para ver ou editar anotações"
+                          title="Editar anotação"
                         >
                           <StickyNote className="w-3 h-3 text-amber-600 shrink-0" />
                           <span className="truncate font-medium">{contact.notes}</span>
@@ -933,7 +772,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                           className="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-indigo-600 cursor-pointer"
                         >
                           <StickyNote className="w-2.5 h-2.5" />
-                          <span>+ Anotação</span>
+                          <span>+ Nota</span>
                         </button>
                       ) : null}
 
@@ -951,7 +790,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                                 : 'bg-slate-100 text-slate-500'
                             }`}
                           >
-                            {contact.isOpenNow ? 'Aberto agora' : 'Fechado'}
+                            {contact.isOpenNow ? 'Aberto' : 'Fechado'}
                           </span>
                         )}
                       </div>
@@ -971,20 +810,20 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                           onClick={() => onOpenCnpjModal(contact)}
                           className="block text-[11px] text-indigo-600 hover:underline cursor-pointer"
                         >
-                          Alterar / Detalhes
+                          Detalhes
                         </button>
                       </div>
                     ) : (
                       <div className="space-y-1">
-                        <span className="text-[11px] text-slate-400 italic">Não vinculado</span>
+                        <span className="text-[11px] text-slate-400 italic">Não cadastrado</span>
                         <button
                           type="button"
                           onClick={() => onOpenCnpjModal(contact)}
                           className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
-                          title="Localizar CNPJ na Receita / Bases Públicas"
+                          title="Consultar CNPJ"
                         >
                           <Search className="w-3 h-3 text-slate-500" />
-                          Consultar CNPJ
+                          Consultar
                         </button>
                       </div>
                     )}
@@ -1000,10 +839,10 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-transform active:scale-98 cursor-pointer"
-                            title="Clique para iniciar conversa direta no WhatsApp"
+                            title="Iniciar conversa no WhatsApp"
                           >
                             <MessageCircle className="w-3.5 h-3.5 fill-white" />
-                            <span>Chamar no WhatsApp</span>
+                            <span>WhatsApp</span>
                           </a>
                         ) : (
                           <a
@@ -1011,7 +850,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors"
                           >
                             <Phone className="w-3 h-3" />
-                            <span>Ligar (Fixo)</span>
+                            <span>Ligar</span>
                           </a>
                         )}
 
@@ -1032,7 +871,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                         </div>
                       </div>
                     ) : (
-                      <span className="text-slate-400 text-xs italic">Sem telefone público</span>
+                      <span className="text-slate-400 text-xs italic">Sem telefone</span>
                     )}
                   </td>
 
@@ -1050,7 +889,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                           className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
                         >
                           <MapPin className="w-3 h-3 text-indigo-500" />
-                          Ver no Google Maps <ExternalLink className="w-2.5 h-2.5" />
+                          Google Maps <ExternalLink className="w-2.5 h-2.5" />
                         </a>
                       )}
                     </div>
@@ -1065,7 +904,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
                           <span>{contact.rating.toFixed(1)}</span>
                         </div>
                         <span className="text-[10px] text-slate-400">
-                          {contact.userRatingCount} avaliações
+                          ({contact.userRatingCount})
                         </span>
                       </div>
                     ) : (
@@ -1133,7 +972,7 @@ export const ContactsTable: React.FC<ContactsTableProps> = ({
               <option value={10}>10</option>
               <option value={25}>25</option>
               <option value={50}>50</option>
-              <option value={100}>100 (máx)</option>
+              <option value={100}>100</option>
             </select>
           </div>
         </div>

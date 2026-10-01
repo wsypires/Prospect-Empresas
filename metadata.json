@@ -1,0 +1,6 @@
+{
+  "name": "Encontre Empresas",
+  "description": "Prospecção comercial B2B via Google Places API com busca por nicho e cidade, WhatsApp direto, CNPJ e exportação.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

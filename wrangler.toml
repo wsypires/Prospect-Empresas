@@ -1,0 +1,8 @@
+name = "encontre-empresas"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "dist"
+
+[vars]
+# Configure a chave GOOGLE_MAPS_API_KEY no painel da Cloudflare ou via wrangler secret
+# GOOGLE_MAPS_API_KEY = "SUA_CHAVE_AQUI"
